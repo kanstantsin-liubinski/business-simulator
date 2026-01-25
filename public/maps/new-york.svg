@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0" stop-color="#0f1724" />
+      <stop offset="1" stop-color="#0b1220" />
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#g1)" />
+  <!-- Grid-like Manhattan blocks -->
+  <g stroke="#6b9bb0" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" opacity="0.95">
+    <!-- vertical avenues -->
+    <g stroke-opacity="0.95">
+      <path d="M120 40 V860" />
+      <path d="M240 40 V860" />
+      <path d="M360 40 V860" />
+      <path d="M480 40 V860" />
+      <path d="M600 40 V860" />
+      <path d="M720 40 V860" />
+      <path d="M840 40 V860" />
+      <path d="M960 40 V860" />
+      <path d="M1080 40 V860" />
+    </g>
+    <!-- horizontal streets -->
+    <g stroke-opacity="0.75">
+      <path d="M40 100 H1360" stroke-width="12" stroke="#8fbfd0" />
+      <path d="M40 220 H1360" stroke-width="12" stroke="#8fbfd0" />
+      <path d="M40 340 H1360" stroke-width="12" stroke="#8fbfd0" />
+      <path d="M40 460 H1360" stroke-width="12" stroke="#8fbfd0" />
+      <path d="M40 580 H1360" stroke-width="12" stroke="#8fbfd0" />
+      <path d="M40 700 H1360" stroke-width="12" stroke="#8fbfd0" />
+      <path d="M40 820 H1360" stroke-width="12" stroke="#8fbfd0" />
+    </g>
+  </g>
+  <!-- blocks (buildings) -->
+  <g fill="#0d1b27" opacity="0.9">
+    <rect x="140" y="110" width="90" height="80" rx="6" />
+    <rect x="260" y="110" width="110" height="140" rx="6" />
+    <rect x="400" y="110" width="80" height="80" rx="6" />
+    <rect x="520" y="230" width="120" height="100" rx="6" />
+    <rect x="680" y="340" width="90" height="90" rx="6" />
+    <rect x="840" y="200" width="140" height="160" rx="6" />
+  </g>
+  <!-- river -->
+  <path d="M1150 0 C1300 150, 1300 750, 1150 900 L1320 900 L1320 0 Z" fill="#0f9bd6" opacity="0.12" />
+  <!-- subtle grid texture -->
+  <g stroke="#08121a" stroke-width="1" opacity="0.12">
+    <path d="M0 0 H1400 M0 20 H1400 M0 40 H1400 M0 60 H1400 M0 80 H1400" />
+  </g>
+</svg>

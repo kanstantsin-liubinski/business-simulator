@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <rect width="100%" height="100%" fill="#0c1722" />
+  <!-- radial streets from center -->
+  <g stroke="#6fbcd0" stroke-width="14" stroke-linecap="round" opacity="0.95">
+    <path d="M700 150 L700 750" />
+    <path d="M500 100 L900 800" />
+    <path d="M300 120 L1100 700" />
+  </g>
+  <!-- concentric rings -->
+  <g stroke="#7fcad9" stroke-width="12" fill="none" opacity="0.85">
+    <circle cx="700" cy="400" r="160" />
+    <circle cx="700" cy="400" r="260" />
+  </g>
+  <g fill="#08141a" opacity="0.95">
+    <rect x="640" y="340" width="120" height="80" rx="6" />
+    <rect x="480" y="220" width="140" height="120" rx="6" />
+    <rect x="880" y="280" width="100" height="140" rx="6" />
+  </g>
+  <path d="M980 0 C1100 160, 1100 740, 980 900 L1400 900 L1400 0 Z" fill="#bfeefc" opacity="0.06" />
+</svg>

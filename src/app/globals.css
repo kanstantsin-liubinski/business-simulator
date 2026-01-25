@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+html {
+  background: linear-gradient(45deg, #00455c 0%, #06254a 50%, #3a004f 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+body {
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
