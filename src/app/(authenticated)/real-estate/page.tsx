@@ -28,9 +28,10 @@ interface PropertyModalProps {
   isBuying: boolean;
   currentUserId: string | null;
   isJustPurchased?: boolean;
+  purchaseError?: string | null;
 }
 
-const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, currentUserId, isJustPurchased }: PropertyModalProps) => {
+const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, currentUserId, isJustPurchased, purchaseError }: PropertyModalProps) => {
   if (!property) return null;
 
   const isOwned = !!property.ownerId;
@@ -63,13 +64,19 @@ const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, curren
           </div>
         )}
 
+        {purchaseError && (
+          <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-4 mb-4">
+            <p className="text-red-300 font-semibold text-center">{purchaseError}</p>
+          </div>
+        )}
+
         {isOwnedByCurrentUser && !isJustPurchased && (
           <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-3 mb-4">
             <p className="text-green-300 font-semibold text-center">✓ You own this property</p>
           </div>
         )}
 
-        {isOwned && !isOwnedByCurrentUser && (
+        {isOwned && !isOwnedByCurrentUser && !purchaseError && (
           <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-3 mb-4">
             <p className="text-red-300 font-semibold text-center">✗ Property already owned</p>
           </div>
@@ -119,6 +126,7 @@ export default function RealEstatePage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isBuying, setIsBuying] = useState(false);
   const [isJustPurchased, setIsJustPurchased] = useState(false);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const { money: userBalance, setMoney: setUserBalance } = useGameStore();
 
   // Загружаем города из БД
@@ -165,9 +173,25 @@ export default function RealEstatePage() {
   }, []);
 
   const handleBuyProperty = async (propertyId: string) => {
+    const refreshPropertyData = async () => {
+      const citiesResponse = await fetch("/api/cities");
+      if (citiesResponse.ok) {
+        const citiesData = await citiesResponse.json();
+        setCities(citiesData);
+
+        const updatedProperty = citiesData[selectedCityIndex]?.properties.find(
+          (p: Property) => p.id === propertyId
+        );
+        if (updatedProperty) {
+          setSelectedProperty(updatedProperty);
+        }
+      }
+    };
+
     try {
       setIsBuying(true);
       setIsJustPurchased(false);
+      setPurchaseError(null);
       const response = await fetch("/api/buy-property", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -177,34 +201,23 @@ export default function RealEstatePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Failed to buy property");
+        // Даже при ошибке обновляем данные, чтобы показать кто купил
+        setPurchaseError(data.error || "Failed to buy property");
+        await refreshPropertyData();
         setIsBuying(false);
         return;
       }
 
-      // Обновляем баланс
+      // Успешная покупка
       setUserBalance(data.newBalance);
-
-      // Обновляем список городов чтобы отразить изменение владельца
-      const citiesResponse = await fetch("/api/cities");
-      if (citiesResponse.ok) {
-        const citiesData = await citiesResponse.json();
-        setCities(citiesData);
-
-        // Находим обновленный объект и обновляем selectedProperty
-        const updatedProperty = citiesData[selectedCityIndex]?.properties.find(
-          (p: Property) => p.id === propertyId
-        );
-        if (updatedProperty) {
-          setSelectedProperty(updatedProperty);
-          setIsJustPurchased(true);
-        }
-      }
-
+      await refreshPropertyData();
+      setIsJustPurchased(true);
       setIsBuying(false);
     } catch (err) {
       console.error("Error buying property:", err);
-      alert("Failed to buy property");
+      // При критической ошибке тоже пытаемся обновить данные
+      setPurchaseError("Connection error. Please try again.");
+      await refreshPropertyData();
       setIsBuying(false);
     }
   };
@@ -381,12 +394,14 @@ export default function RealEstatePage() {
         onClose={() => {
           setSelectedProperty(null);
           setIsJustPurchased(false);
+          setPurchaseError(null);
         }}
         userBalance={userBalance}
         onBuy={handleBuyProperty}
         isBuying={isBuying}
         currentUserId={currentUserId}
         isJustPurchased={isJustPurchased}
+        purchaseError={purchaseError}
       />
     </div>
   );
