@@ -8,20 +8,9 @@ export async function register() {
   }
 
   try {
-    const { scheduler } = await import("./src/lib/scheduler");
-
-    // Start the 5-minute aligned scheduler
-    console.log("[Instrumentation] Starting scheduler...");
-    scheduler.start();
-
-    // Example placeholder task registration. Commented out by default.
-    // You can uncomment and implement your DB updates here or from any server module:
-    // scheduler.addTask("update-prices", async () => {
-    //   const { default: prisma } = await import("./src/utils/prisma");
-    //   // ... perform batched updates
-    // });
-
-    console.log("[Instrumentation] ✓ Server scheduler initialized successfully");
+    const { initializeScheduler } = await import("./src/lib/initScheduler");
+    initializeScheduler();
+    console.log("[Instrumentation] ✓ Scheduler initialized via instrumentation");
   } catch (error) {
     console.error("[Instrumentation] ✗ Failed to initialize scheduler:", error);
   }
