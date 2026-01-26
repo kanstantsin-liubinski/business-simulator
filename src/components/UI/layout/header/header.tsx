@@ -106,13 +106,13 @@ export default function Header() {
 
   return (
     <>
-      <header className="w-full h-16 bg-white/10 shadow-lg backdrop-blur-xl border-b border-white/20 flex justify-center items-center px-8 sticky top-0 z-40 relative">
+      <header className="w-full h-16 shadow-lg backdrop-blur-xl border-b border-white/20 flex justify-center items-center px-8 sticky top-0 z-40 relative" style={{background: "linear-gradient(to right, rgba(255,255,255,0.05) 0%, rgba(236,72,153,0.3) 50%, rgba(255,255,255,0.05) 100%)"}}>
         <div className="flex-1">
           <BirdLogo />
         </div>
 
         <Link href="/">
-          <button className="w-auto h-14 relative font-semibold cursor-pointer transition-all duration-200 active:scale-95 overflow-hidden px-5 py-2 bg-slate-700 text-white border border-cyan-500/60 hover:border-cyan-400 hover:bg-slate-600 hover:shadow-lg hover:shadow-cyan-500/30 rounded-lg text-xl">
+          <button className="w-auto h-14 relative font-semibold cursor-pointer transition-all duration-200 active:scale-95 overflow-hidden px-10 py-2 bg-slate-700 text-white border border-cyan-500/60 hover:border-cyan-400 hover:bg-slate-600 hover:shadow-lg hover:shadow-cyan-500/30 rounded-lg text-xl">
             🏠
           </button>
         </Link>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 html {
-  background: linear-gradient(45deg, #00455c 0%, #06254a 50%, #3a004f 100%);
+  background: linear-gradient(to bottom, #0f172a, #1e293b, #030712);
   background-attachment: fixed;
   background-repeat: no-repeat;
   min-height: 100vh;

@@ -93,7 +93,7 @@ const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, curren
           )}
           <button
             onClick={onClose}
-            className="flex-1 px-6 py-3 bg-slate-700 text-white border border-cyan-500/60 hover:border-cyan-400 hover:bg-slate-600 hover:shadow-lg hover:shadow-cyan-500/30 rounded-lg font-semibold transition-all duration-200 active:scale-95"
+            className="flex-1 px-6 py-3 bg-slate-700 text-white border border-cyan-500/60 hover:border-cyan-400 hover:bg-slate-600 hover:shadow-lg hover:shadow-cyan-500/30 rounded-lg font-semibold transition-all duration-200 active:scale-95 cursor-pointer"
           >
             Close
           </button>
@@ -196,7 +196,7 @@ export default function RealEstatePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-cyan-300 text-lg">Loading cities...</p>
@@ -207,7 +207,7 @@ export default function RealEstatePage() {
 
   if (error || cities.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-400 text-xl mb-4">{error || "No cities found"}</p>
           <button
@@ -222,7 +222,7 @@ export default function RealEstatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 flex flex-col items-center justify-center px-8 py-20">
+    <div className="min-h-screen bg-transparent flex flex-col items-center justify-center px-8 py-20">
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-blue-900/15 rounded-full blur-3xl"></div>

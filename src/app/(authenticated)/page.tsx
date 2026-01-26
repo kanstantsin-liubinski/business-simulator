@@ -39,7 +39,7 @@ const GameCard = ({ title, href, description, icon }: GameCardProps) => {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 flex flex-col items-center justify-center px-8 py-20">
+    <div className="min-h-screen bg-transparent flex flex-col items-center justify-center px-8 py-20">
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-blue-900/15 rounded-full blur-3xl"></div>
