@@ -22,7 +22,7 @@ const cities: City[] = [
   {
     name: "New York",
     image:
-      "/maps/new-york.svg",
+      "/maps/new-york.jpg",
     properties: [
       {
         id: 1,
@@ -74,7 +74,7 @@ const cities: City[] = [
   {
     name: "Berlin",
     image:
-      "/maps/berlin.svg",
+      "/maps/berlin.jpg",
     properties: [
       {
         id: 1,
@@ -126,7 +126,7 @@ const cities: City[] = [
   {
     name: "Moscow",
     image:
-      "/maps/moscow.svg",
+      "/maps/moscow.jpg",
     properties: [
       {
         id: 1,
@@ -178,7 +178,7 @@ const cities: City[] = [
   {
     name: "Beijing",
     image:
-      "/maps/beijing.svg",
+      "/maps/beijing.jpg",
     properties: [
       {
         id: 1,
@@ -230,7 +230,7 @@ const cities: City[] = [
   {
     name: "Tokyo",
     image:
-      "/maps/tokyo.svg",
+      "/maps/tokyo.jpg",
     properties: [
       {
         id: 1,
