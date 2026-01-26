@@ -98,7 +98,7 @@ const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, curren
               disabled={!canBuy || isBuying}
               className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-200 active:scale-95 ${
                 canBuy && !isBuying
-                  ? "bg-green-600 text-white border border-green-400 hover:bg-green-500 hover:shadow-lg hover:shadow-green-500/30"
+                  ? "bg-green-600 text-white border border-green-400 hover:bg-green-500 hover:shadow-lg hover:shadow-green-500/30 cursor-pointer"
                   : "bg-gray-600 text-gray-400 border border-gray-500 cursor-not-allowed opacity-50"
               }`}
             >
