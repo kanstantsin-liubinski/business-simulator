@@ -3,6 +3,7 @@
 import { signOutFunc } from "actions/sign-out";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useAuthStore } from "store/auth.store";
 import { useGameStore } from "store/game.store";
 import GameButton from "components/UI/GameButton/GameButton";
@@ -69,7 +70,28 @@ const BirdLogo = () => (
 export default function Header() {
   const router = useRouter();
   const { setAuthState } = useAuthStore();
-  const { money, monthlyIncome } = useGameStore();
+  const { money, monthlyIncome, setMoney } = useGameStore();
+
+  useEffect(() => {
+    const fetchUserBalance = async () => {
+      try {
+        console.log("Header: Fetching user balance from /api/user...");
+        const response = await fetch("/api/user");
+        console.log("Header: User API response status:", response.status);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Header: User data received:", data);
+          setMoney(data.balance);
+        } else {
+          console.error("Header: Failed to fetch user data, status:", response.status);
+        }
+      } catch (err) {
+        console.error("Header: Error fetching user balance:", err);
+      }
+    };
+
+    fetchUserBalance();
+  }, [setMoney]);
 
   const handleSignOut = async () => {
     try {

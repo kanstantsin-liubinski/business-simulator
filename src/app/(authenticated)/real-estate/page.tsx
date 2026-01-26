@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useGameStore } from "store/game.store";
 
 interface Property {
   id: string;
@@ -10,6 +11,7 @@ interface Property {
   x: number;
   y: number;
   type: string;
+  ownerId: string | null;
 }
 
 interface City {
@@ -21,10 +23,18 @@ interface City {
 interface PropertyModalProps {
   property: Property | null;
   onClose: () => void;
+  userBalance: number;
+  onBuy: (propertyId: string) => Promise<void>;
+  isBuying: boolean;
+  currentUserId: string | null;
 }
 
-const PropertyModal = ({ property, onClose }: PropertyModalProps) => {
+const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, currentUserId }: PropertyModalProps) => {
   if (!property) return null;
+
+  const isOwned = !!property.ownerId;
+  const isOwnedByCurrentUser = property.ownerId === currentUserId;
+  const canBuy = !isOwned && userBalance >= property.price;
 
   return (
     <>
@@ -39,19 +49,55 @@ const PropertyModal = ({ property, onClose }: PropertyModalProps) => {
         <p className="text-sm text-gray-400 mb-4">{property.type}</p>
         <p className="text-gray-300 mb-6">{property.description}</p>
 
-        <div className="bg-slate-900/50 rounded-lg p-4 mb-6 border border-cyan-500/30">
+        <div className="bg-slate-900/50 rounded-lg p-4 mb-4 border border-cyan-500/30">
           <p className="text-gray-400 mb-2">Price</p>
           <p className="text-4xl font-bold text-cyan-300">
             ${property.price.toLocaleString()}
           </p>
         </div>
 
-        <button
-          onClick={onClose}
-          className="w-full px-6 py-3 bg-slate-700 text-white border border-cyan-500/60 hover:border-cyan-400 hover:bg-slate-600 hover:shadow-lg hover:shadow-cyan-500/30 rounded-lg font-semibold transition-all duration-200 active:scale-95"
-        >
-          Close
-        </button>
+        {isOwnedByCurrentUser && (
+          <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-3 mb-4">
+            <p className="text-green-300 font-semibold text-center">✓ You own this property</p>
+          </div>
+        )}
+
+        {isOwned && !isOwnedByCurrentUser && (
+          <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-3 mb-4">
+            <p className="text-red-300 font-semibold text-center">✗ Property already owned</p>
+          </div>
+        )}
+
+        {!isOwned && (
+          <div className="bg-slate-900/50 rounded-lg p-3 mb-4 border border-cyan-500/30">
+            <p className="text-gray-400 text-sm">Your balance</p>
+            <p className="text-xl font-bold text-cyan-300">
+              ${userBalance.toLocaleString()}
+            </p>
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          {!isOwned && (
+            <button
+              onClick={() => onBuy(property.id)}
+              disabled={!canBuy || isBuying}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all duration-200 active:scale-95 ${
+                canBuy && !isBuying
+                  ? "bg-green-600 text-white border border-green-400 hover:bg-green-500 hover:shadow-lg hover:shadow-green-500/30"
+                  : "bg-gray-600 text-gray-400 border border-gray-500 cursor-not-allowed opacity-50"
+              }`}
+            >
+              {isBuying ? "Buying..." : canBuy ? "Buy" : "Insufficient Funds"}
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="flex-1 px-6 py-3 bg-slate-700 text-white border border-cyan-500/60 hover:border-cyan-400 hover:bg-slate-600 hover:shadow-lg hover:shadow-cyan-500/30 rounded-lg font-semibold transition-all duration-200 active:scale-95"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </>
   );
@@ -63,6 +109,9 @@ export default function RealEstatePage() {
   const [cities, setCities] = useState<City[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isBuying, setIsBuying] = useState(false);
+  const { money: userBalance, setMoney: setUserBalance } = useGameStore();
 
   // Загружаем города из БД
   useEffect(() => {
@@ -85,8 +134,63 @@ export default function RealEstatePage() {
       }
     };
 
+    const fetchUserData = async () => {
+      try {
+        console.log("Fetching user data from /api/user...");
+        const response = await fetch("/api/user");
+        console.log("User API response status:", response.status);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("User data received:", data);
+          setUserBalance(data.balance);
+          setCurrentUserId(data.id);
+        } else {
+          console.error("Failed to fetch user data, status:", response.status);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+
     fetchCities();
+    fetchUserData();
   }, []);
+
+  const handleBuyProperty = async (propertyId: string) => {
+    try {
+      setIsBuying(true);
+      const response = await fetch("/api/buy-property", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propertyId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Failed to buy property");
+        return;
+      }
+
+      // Обновляем баланс
+      setUserBalance(data.newBalance);
+
+      // Обновляем список городов чтобы отразить изменение владельца
+      const citiesResponse = await fetch("/api/cities");
+      if (citiesResponse.ok) {
+        const citiesData = await citiesResponse.json();
+        setCities(citiesData);
+      }
+
+      setSelectedProperty(null);
+      alert("Property purchased successfully!");
+    } catch (err) {
+      console.error("Error buying property:", err);
+      alert("Failed to buy property");
+    } finally {
+      setIsBuying(false);
+    }
+  };
 
   const currentCity = cities[selectedCityIndex];
 
@@ -211,16 +315,28 @@ export default function RealEstatePage() {
               >
                 {/* Outer glow */}
                 <div className={`absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl transition-all duration-200 ${
-                  selectedProperty?.id === property.id
-                    ? "bg-cyan-500/70 scale-150"
-                    : "bg-cyan-500/30 group-hover:bg-cyan-500/50"
+                  property.ownerId
+                    ? selectedProperty?.id === property.id
+                      ? "bg-red-500/70 scale-150"
+                      : "bg-red-500/30 group-hover:bg-red-500/50"
+                    : selectedProperty?.id === property.id
+                      ? "bg-cyan-500/70 scale-150"
+                      : "bg-cyan-500/30 group-hover:bg-cyan-500/50"
                 }`}></div>
 
                 {/* Marker circle */}
-                <div className={`absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full border-2 border-cyan-200 transition-all duration-200 ${
-                  selectedProperty?.id === property.id
-                    ? "shadow-2xl shadow-cyan-500/80 scale-125"
-                    : "shadow-lg shadow-cyan-500/50 group-hover:shadow-xl group-hover:shadow-cyan-500/70 group-hover:scale-125"
+                <div className={`absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-all duration-200 ${
+                  property.ownerId
+                    ? `bg-gradient-to-br from-red-400 to-red-600 border-red-200 ${
+                        selectedProperty?.id === property.id
+                          ? "shadow-2xl shadow-red-500/80 scale-125"
+                          : "shadow-lg shadow-red-500/50 group-hover:shadow-xl group-hover:shadow-red-500/70 group-hover:scale-125"
+                      }`
+                    : `bg-gradient-to-br from-cyan-400 to-cyan-600 border-cyan-200 ${
+                        selectedProperty?.id === property.id
+                          ? "shadow-2xl shadow-cyan-500/80 scale-125"
+                          : "shadow-lg shadow-cyan-500/50 group-hover:shadow-xl group-hover:shadow-cyan-500/70 group-hover:scale-125"
+                      }`
                 }`}></div>
 
                 {/* Tooltip */}
@@ -243,7 +359,14 @@ export default function RealEstatePage() {
       </div>
 
       {/* Modal */}
-      <PropertyModal property={selectedProperty} onClose={() => setSelectedProperty(null)} />
+      <PropertyModal 
+        property={selectedProperty} 
+        onClose={() => setSelectedProperty(null)}
+        userBalance={userBalance}
+        onBuy={handleBuyProperty}
+        isBuying={isBuying}
+        currentUserId={currentUserId}
+      />
     </div>
   );
 }

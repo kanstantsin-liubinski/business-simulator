@@ -24,6 +24,7 @@ export async function GET() {
         x: obj.x,
         y: obj.y,
         type: obj.type,
+        ownerId: obj.ownerId,
       })),
     }));
 
