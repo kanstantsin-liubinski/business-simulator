@@ -335,7 +335,7 @@ export default function RealEstatePage() {
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-900/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center gap-8 max-w-6xl w-full">
+      <div className="relative z-10 flex flex-col items-center justify-center gap-8 w-full px-4">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent mb-3">
@@ -361,41 +361,87 @@ export default function RealEstatePage() {
           ))}
         </div>
 
-        {/* Interactive Map */}
-        <div
-          className="w-full aspect-video bg-cover bg-center border-2 border-cyan-500/50 rounded-lg relative overflow-hidden shadow-2xl shadow-cyan-500/20"
-          style={{
-            backgroundImage: `url('${currentCity.image}')`,
-          }}
-        >
-          {/* Dark overlay for better visibility */}
-          <div className="absolute inset-0 bg-black/30"></div>
+        {/* Properties Table and Map Container */}
+        <div className="flex gap-8 w-full h-screen max-h-[calc(100vh-300px)]">
+          {/* Properties Table */}
+          <div className="w-[480px] bg-gradient-to-br from-slate-700 to-slate-800 border border-cyan-500/50 rounded-lg p-4 shadow-2xl shadow-cyan-500/20 h-full flex flex-col">
+            <h2 className="text-lg font-bold text-cyan-200 mb-3">Properties List</h2>
+            <div className="overflow-y-auto flex-1">
+              <table className="w-full text-xs">
+                <thead className="sticky top-0 bg-slate-800/80 border-b border-cyan-500/30">
+                  <tr>
+                    <th className="text-left px-2 py-1.5 text-cyan-300 font-semibold">Name</th>
+                    <th className="text-left px-2 py-1.5 text-cyan-300 font-semibold">Description</th>
+                    <th className="text-left px-2 py-1.5 text-cyan-300 font-semibold">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentCity.properties.map((property) => (
+                    <tr
+                      key={property.id}
+                      onClick={() => setSelectedProperty(property)}
+                      className={`cursor-pointer transition-all duration-200 border-b border-slate-600/50 hover:bg-slate-600/50 ${
+                        selectedProperty?.id === property.id
+                          ? "bg-cyan-500/30"
+                          : ""
+                      }`}
+                    >
+                      <td className="px-2 py-2 text-white truncate max-w-[140px]">{property.name}</td>
+                      <td className="px-2 py-2 text-gray-300 truncate max-w-[120px]">{property.description}</td>
+                      <td className="px-2 py-2 text-cyan-300 font-semibold whitespace-nowrap">${property.price.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-          {/* Properties markers */}
-          {currentCity.properties.map((property) => (
-            <button
-              key={property.id}
-              onClick={() => setSelectedProperty(property)}
-              className="absolute group cursor-pointer transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 active:scale-90"
-              style={{
-                left: `${property.x}%`,
-                top: `${property.y}%`,
-              }}
-            >
-              {/* Outer glow */}
-              <div className="absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 bg-cyan-500/30 rounded-full blur-xl group-hover:bg-cyan-500/50 transition-all duration-200"></div>
+          {/* Interactive Map */}
+          <div
+            className="flex-1 bg-cover bg-center border-2 border-cyan-500/50 rounded-lg relative overflow-hidden shadow-2xl shadow-cyan-500/20 h-full"
+            style={{
+              backgroundImage: `url('${currentCity.image}')`,
+            }}
+          >
+            {/* Dark overlay for better visibility */}
+            <div className="absolute inset-0 bg-black/30"></div>
 
-              {/* Marker circle */}
-              <div className="absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full border-2 border-cyan-200 shadow-lg shadow-cyan-500/50 group-hover:shadow-xl group-hover:shadow-cyan-500/70 group-hover:scale-125 transition-all duration-200"></div>
+            {/* Properties markers */}
+            {currentCity.properties.map((property) => (
+              <button
+                key={property.id}
+                onClick={() => setSelectedProperty(property)}
+                className={`absolute group cursor-pointer transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 active:scale-90 ${
+                  selectedProperty?.id === property.id ? "scale-150" : ""
+                }`}
+                style={{
+                  left: `${property.x}%`,
+                  top: `${property.y}%`,
+                }}
+              >
+                {/* Outer glow */}
+                <div className={`absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl transition-all duration-200 ${
+                  selectedProperty?.id === property.id
+                    ? "bg-cyan-500/70 scale-150"
+                    : "bg-cyan-500/30 group-hover:bg-cyan-500/50"
+                }`}></div>
 
-              {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                <div className="bg-slate-900 border border-cyan-500 rounded px-3 py-2 whitespace-nowrap text-sm text-cyan-200 shadow-lg">
-                  {property.name}
+                {/* Marker circle */}
+                <div className={`absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full border-2 border-cyan-200 transition-all duration-200 ${
+                  selectedProperty?.id === property.id
+                    ? "shadow-2xl shadow-cyan-500/80 scale-125"
+                    : "shadow-lg shadow-cyan-500/50 group-hover:shadow-xl group-hover:shadow-cyan-500/70 group-hover:scale-125"
+                }`}></div>
+
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <div className="bg-slate-900 border border-cyan-500 rounded px-3 py-2 whitespace-nowrap text-sm text-cyan-200 shadow-lg">
+                    {property.name}
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Properties count */}
