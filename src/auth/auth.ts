@@ -9,6 +9,7 @@ import bcryptjs from "bcryptjs"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
@@ -60,6 +61,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id;
       }
       return token;
+    }
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' 
+        ? '__Secure-authjs.session-token' 
+        : 'authjs.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
     }
   }
 })
