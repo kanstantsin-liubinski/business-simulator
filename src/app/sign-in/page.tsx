@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { signInWithCredentials } from 'actions/sign-in';
 import { IFormData } from 'interfaces/IFormData';
 
 export default function SignInPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState<IFormData>({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,8 +18,13 @@ export default function SignInPage() {
     setError(null);
 
     try {
-      await signInWithCredentials(formData);
-      window.location.reload();
+      const result = await signInWithCredentials(formData);
+      
+      if (result?.ok) {
+        router.push('/');
+      } else {
+        setError('Ошибка при входе. Проверьте данные.');
+      }
     } catch (error) {
       setError('Error signing in. Please try again.');
       console.error('Error signing in:', error);

@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { registerUser } from 'actions/register';
 import { IFormData } from 'interfaces/IFormData';
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState<IFormData>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -46,6 +48,10 @@ export default function SignUpPage() {
       setSuccess(true);
       setFormData({});
       setIsLoading(false);
+      // Redirect to sign-in after successful registration
+      setTimeout(() => {
+        router.push('/sign-in');
+      }, 1500);
     }
   };
 
