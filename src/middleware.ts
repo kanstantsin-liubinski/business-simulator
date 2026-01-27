@@ -9,9 +9,7 @@ export async function middleware(request: NextRequest) {
         secret: process.env.NEXTAUTH_SECRET 
     });
 
-    console.log(`[Middleware] Path: ${pathname}, Token: ${token ? 'EXISTS' : 'MISSING'}`, {
-        cookies: request.cookies.getSetCookie(),
-    });
+    console.log(`[Middleware] Path: ${pathname}, Token: ${token ? 'EXISTS' : 'MISSING'}`);
 
     // Paths that don't require authentication
     const publicPaths = ["/sign-in", "/sign-up", "/api/auth"];
