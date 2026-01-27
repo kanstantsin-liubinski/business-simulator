@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "auth/auth";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Use auth() instead of getToken() for better compatibility
-    const session = await auth();
-    const token = session?.user;
+    // Get the secret from environment
+    const secret = process.env.NEXTAUTH_SECRET;
+    
+    if (!secret) {
+        console.error("[Middleware] NEXTAUTH_SECRET not found!");
+        return NextResponse.redirect(new URL("/sign-in", request.url));
+    }
+
+    const token = await getToken({ 
+        req: request,
+        secret: secret
+    });
 
     console.log(`[Middleware] Path: ${pathname}, Token: ${token ? 'EXISTS' : 'MISSING'}`);
 
