@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "auth/auth";
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    const token = await getToken({ 
-        req: request,
-        secret: process.env.NEXTAUTH_SECRET 
-    });
+    // Use auth() instead of getToken() for better compatibility
+    const session = await auth();
+    const token = session?.user;
 
     console.log(`[Middleware] Path: ${pathname}, Token: ${token ? 'EXISTS' : 'MISSING'}`);
 
