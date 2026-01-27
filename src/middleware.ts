@@ -4,6 +4,16 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
+    // Try to get the session token directly from cookies
+    const sessionToken = request.cookies.get("__Secure-authjs.session-token")?.value 
+        || request.cookies.get("authjs.session-token")?.value;
+
+    console.log(`[Middleware] Path: ${pathname}, SessionToken: ${sessionToken ? 'EXISTS' : 'MISSING'}`);
+    
+    // List all cookies for debugging
+    const allCookies = request.cookies.getAll();
+    console.log(`[Middleware] All cookies:`, allCookies.map(c => c.name));
+
     const secret = process.env.NEXTAUTH_SECRET;
     
     if (!secret) {
@@ -11,12 +21,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    const token = await getToken({ 
+    const token = sessionToken ? await getToken({ 
         req: request,
         secret: secret
-    });
+    }) : null;
 
-    console.log(`[Middleware] Path: ${pathname}, Token: ${token ? 'EXISTS' : 'MISSING'}`);
+    console.log(`[Middleware] JWT Token valid: ${token ? 'YES' : 'NO'}`);
 
     // Public paths that still go through middleware
     if (pathname === "/sign-in" || pathname === "/sign-up") {
