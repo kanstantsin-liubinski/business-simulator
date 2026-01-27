@@ -20,10 +20,12 @@ export default function SignInPage() {
     try {
       const result = await signInWithCredentials(formData);
       
-      if (result?.ok) {
+      // NextAuth v5 redirects on success, so if we get here without redirect, check result
+      if (!result?.error) {
+        // Success - redirect to home
         router.push('/');
       } else {
-        setError('Ошибка при входе. Проверьте данные.');
+        setError(result.error || 'Ошибка при входе. Проверьте данные.');
       }
     } catch (error) {
       setError('Error signing in. Please try again.');

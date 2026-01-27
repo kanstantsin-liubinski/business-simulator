@@ -14,14 +14,14 @@ export async function signInWithCredentials(formData: IFormData) {
         });
 
         console.log("[signInWithCredentials] Result:", {
-            ok: result?.ok,
             error: result?.error,
-            status: result?.status
+            status: result?.status,
+            url: result?.url
         });
 
         return result
     } catch (error) {
         console.log("Ошибка авторизации:", error);
-        throw error
+        return { error: "Ошибка при авторизации" };
     }
 }
