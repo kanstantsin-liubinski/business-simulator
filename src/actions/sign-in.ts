@@ -13,6 +13,12 @@ export async function signInWithCredentials(formData: IFormData) {
             redirect: false
         });
 
+        console.log("[signInWithCredentials] Result:", {
+            ok: result?.ok,
+            error: result?.error,
+            status: result?.status
+        });
+
         return result
     } catch (error) {
         console.log("Ошибка авторизации:", error);
