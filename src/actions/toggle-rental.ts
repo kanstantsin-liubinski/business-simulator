@@ -6,6 +6,7 @@ import prisma from "utils/prisma";
 interface ToggleRentalResponse {
   success: boolean;
   isRented?: boolean;
+  propertyPrice?: number;
   message?: string;
   error?: string;
 }
@@ -50,6 +51,7 @@ export async function togglePropertyRental(propertyId: string): Promise<ToggleRe
     return {
       success: true,
       isRented: updatedProperty.isRented,
+      propertyPrice: property.price,
       message: updatedProperty.isRented
         ? "Property is now being rented out"
         : "Rental stopped",

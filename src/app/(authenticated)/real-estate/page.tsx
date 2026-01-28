@@ -37,6 +37,7 @@ interface PropertyModalProps {
 const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, currentUserId, isJustPurchased, purchaseError, onPropertyUpdated }: PropertyModalProps) => {
   const [isTogglingRental, setIsTogglingRental] = useState(false);
   const [localIsRented, setLocalIsRented] = useState(property?.isRented || false);
+  const { monthlyIncome, addMonthlyIncome, subtractMonthlyIncome } = useGameStore();
 
   // Синхронизируем локальное состояние с актуальным статусом свойства
   useEffect(() => {
@@ -55,8 +56,19 @@ const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, curren
     setIsTogglingRental(true);
     try {
       const result = await togglePropertyRental(property.id);
-      if (result.success && result.isRented !== undefined) {
+      if (result.success && result.isRented !== undefined && result.propertyPrice !== undefined) {
         setLocalIsRented(result.isRented);
+        
+        // Обновляем доход в store
+        const dailyIncome = result.propertyPrice * 0.0003;
+        if (result.isRented) {
+          // Включили аренду - добавляем доход
+          addMonthlyIncome(Math.round(dailyIncome));
+        } else {
+          // Выключили аренду - вычитаем доход
+          subtractMonthlyIncome(Math.round(dailyIncome));
+        }
+        
         // Обновляем данные свойства после изменения статуса аренды
         if (onPropertyUpdated) {
           await onPropertyUpdated();

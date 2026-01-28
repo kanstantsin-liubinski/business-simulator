@@ -70,7 +70,7 @@ const BirdLogo = () => (
 export default function Header() {
   const router = useRouter();
   const { setAuthState } = useAuthStore();
-  const { money, monthlyIncome, setMoney } = useGameStore();
+  const { money, monthlyIncome, setMoney, setMonthlyIncome } = useGameStore();
 
   useEffect(() => {
     const fetchUserBalance = async () => {
@@ -90,8 +90,32 @@ export default function Header() {
       }
     };
 
+    const fetchRentalIncome = async () => {
+      try {
+        const response = await fetch("/api/cities");
+        if (response.ok) {
+          const citiesData = await response.json();
+          
+          // Calculate total daily rental income from rented properties
+          let totalDailyIncome = 0;
+          citiesData.forEach((city: any) => {
+            city.properties.forEach((property: any) => {
+              if (property.isRented) {
+                totalDailyIncome += property.price * 0.0003; // 0.03% daily
+              }
+            });
+          });
+          
+          setMonthlyIncome(Math.round(totalDailyIncome));
+        }
+      } catch (err) {
+        console.error("Header: Error fetching rental income:", err);
+      }
+    };
+
     fetchUserBalance();
-  }, [setMoney]);
+    fetchRentalIncome();
+  }, [setMoney, setMonthlyIncome]);
 
   const handleSignOut = async () => {
     try {
@@ -140,7 +164,7 @@ export default function Header() {
                   Income
                 </span>
                 <span className="text-base font-bold text-blue-200">
-                  ${monthlyIncome.toLocaleString()}/mo
+                  ${monthlyIncome.toLocaleString()}/day
                 </span>
               </div>
             </div>
