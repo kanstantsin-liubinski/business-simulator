@@ -3,6 +3,7 @@
 import { IFormData } from "interfaces/IFormData";
 import { saltAndHashPassword } from "utils/password";
 import prisma from "utils/prisma";
+import { signIn } from "auth/auth";
 
 export async function registerUser(formData: IFormData) {
     const { email, password, confirmPassword } = formData
@@ -35,6 +36,13 @@ export async function registerUser(formData: IFormData) {
                 email: email,
                 password: pwHash
             }
+        })
+
+        // Auto sign in user after successful registration
+        await signIn("credentials", {
+            email,
+            password,
+            redirect: false
         })
 
         return user

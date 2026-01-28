@@ -45,13 +45,8 @@ export default function SignUpPage() {
       setError(result.error);
       setIsLoading(false);
     } else {
-      setSuccess(true);
-      setFormData({});
-      setIsLoading(false);
-      // Redirect to sign-in after successful registration
-      setTimeout(() => {
-        router.push('/sign-in');
-      }, 1500);
+      // Auto signed in - redirect immediately
+      router.push('/');
     }
   };
 
