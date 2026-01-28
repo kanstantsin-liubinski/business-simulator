@@ -5,6 +5,7 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "auth/auth";
 import AppLoader from "hoc/app-loader";
 import { SchedulerInit } from "components/SchedulerInit";
+import { ClientSchedulerInit } from "components/ClientSchedulerInit";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default async function RootLayout({
         <SchedulerInit />
         <SessionProvider session={session}>
           <AppLoader>
+            <ClientSchedulerInit />
             {children}
           </AppLoader>
         </SessionProvider>
