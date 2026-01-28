@@ -8,88 +8,86 @@ datasource db {
 }
 
 model User {
-  id  String  @id @default(uuid())
-  email String  @unique
-  password String
-  balance Int @default(100000)
-
-  accounts      Account[]
-  sessions      Session[]
+  id              String               @id @default(uuid())
+  email           String               @unique
+  password        String
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  balance         Int                  @default(100000)
+  accounts        Account[]
   ownedProperties CitiesEstateObject[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  sessions        Session[]
 
   @@map("users")
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String  @map("user_id")
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
- 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
- 
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique @map("session_token")
   userId       String   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@map("sessions")
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
-model City {
-  id         String                 @id @default(uuid())
-  name       String                 @unique
-  image      String
-  citiesEstateObjects CitiesEstateObject[]
 
-  createdAt  DateTime               @default(now()) @map("created_at")
-  updatedAt  DateTime               @updatedAt @map("updated_at")
+model City {
+  id                  String               @id @default(uuid())
+  name                String               @unique
+  image               String
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  citiesEstateObjects CitiesEstateObject[]
 
   @@map("cities")
 }
 
 model CitiesEstateObject {
-  id          String    @id @default(uuid())
-  name        String
-  price       Int
-  description String
-  x           Float
-  y           Float
-  type        String
-  
-  cityId      String    @map("city_id")
-  city        City      @relation(fields: [cityId], references: [id], onDelete: Cascade)
-
-  ownerId     String?   @map("owner_id")
-  owner       User?     @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id                String   @id @default(uuid())
+  name              String
+  price             Int
+  description       String
+  x                 Float
+  y                 Float
+  type              String
+  isRented          Boolean  @default(false) @map("is_rented")
+  cityId            String   @map("city_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  ownerId           String?  @map("owner_id")
+  last_price_update DateTime @default(now())
+  max_price         Int      @default(0)
+  min_price         Int      @default(0)
+  city              City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  owner             User?    @relation(fields: [ownerId], references: [id])
 
   @@map("cities_estate_objects")
 }

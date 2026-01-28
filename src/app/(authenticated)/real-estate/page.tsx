@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useGameStore } from "store/game.store";
+import { togglePropertyRental } from "actions/toggle-rental";
 
 interface Property {
   id: string;
@@ -12,6 +13,7 @@ interface Property {
   y: number;
   type: string;
   ownerId: string | null;
+  isRented?: boolean;
 }
 
 interface City {
@@ -32,11 +34,30 @@ interface PropertyModalProps {
 }
 
 const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, currentUserId, isJustPurchased, purchaseError }: PropertyModalProps) => {
+  const [isTogglingRental, setIsTogglingRental] = useState(false);
+  const [localIsRented, setLocalIsRented] = useState(property?.isRented || false);
+
   if (!property) return null;
 
   const isOwned = !!property.ownerId;
   const isOwnedByCurrentUser = property.ownerId === currentUserId;
   const canBuy = !isOwned && userBalance >= property.price;
+
+  const handleToggleRental = async () => {
+    if (!isOwnedByCurrentUser) return;
+
+    setIsTogglingRental(true);
+    try {
+      const result = await togglePropertyRental(property.id);
+      if (result.success && result.isRented !== undefined) {
+        setLocalIsRented(result.isRented);
+      }
+    } catch (error) {
+      console.error("Error toggling rental:", error);
+    } finally {
+      setIsTogglingRental(false);
+    }
+  };
 
   return (
     <>
@@ -101,9 +122,11 @@ const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, curren
             </div>
             <div className="w-[30%] flex items-center">
               <button
-                className="w-full h-full px-3 py-2 rounded bg-blue-600 text-white border border-blue-400 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-95 font-semibold cursor-pointer flex items-center justify-center text-sm"
+                onClick={handleToggleRental}
+                disabled={isTogglingRental}
+                className="w-full h-full px-3 py-2 rounded bg-blue-600 text-white border border-blue-400 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-95 font-semibold cursor-pointer flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Rent Out
+                {isTogglingRental ? "..." : localIsRented ? "Stop Renting" : "Rent Out"}
               </button>
             </div>
           </div>
