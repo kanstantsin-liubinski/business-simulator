@@ -25,6 +25,7 @@ export async function GET() {
         y: obj.y,
         type: obj.type,
         ownerId: obj.ownerId,
+        isRented: obj.isRented,
       })),
     }));
 

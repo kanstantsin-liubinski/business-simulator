@@ -31,11 +31,17 @@ interface PropertyModalProps {
   currentUserId: string | null;
   isJustPurchased?: boolean;
   purchaseError?: string | null;
+  onPropertyUpdated?: () => Promise<void>;
 }
 
-const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, currentUserId, isJustPurchased, purchaseError }: PropertyModalProps) => {
+const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, currentUserId, isJustPurchased, purchaseError, onPropertyUpdated }: PropertyModalProps) => {
   const [isTogglingRental, setIsTogglingRental] = useState(false);
   const [localIsRented, setLocalIsRented] = useState(property?.isRented || false);
+
+  // Синхронизируем локальное состояние с актуальным статусом свойства
+  useEffect(() => {
+    setLocalIsRented(property?.isRented || false);
+  }, [property?.isRented]);
 
   if (!property) return null;
 
@@ -51,6 +57,10 @@ const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, curren
       const result = await togglePropertyRental(property.id);
       if (result.success && result.isRented !== undefined) {
         setLocalIsRented(result.isRented);
+        // Обновляем данные свойства после изменения статуса аренды
+        if (onPropertyUpdated) {
+          await onPropertyUpdated();
+        }
       }
     } catch (error) {
       console.error("Error toggling rental:", error);
@@ -113,22 +123,31 @@ const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, curren
         )}
 
         {isOwnedByCurrentUser && !isJustPurchased && (
-          <div className="bg-slate-900/50 rounded-lg p-4 mb-4 border border-blue-500/30 flex">
-            <div className="flex-1">
+          <div className="bg-slate-900/50 rounded-lg p-4 mb-4 border border-blue-500/30 flex items-center justify-between">
+            <div>
               <p className="text-gray-400 text-sm">Daily rental income</p>
               <p className="text-lg font-bold text-blue-300">
                 ${(property.price * 0.0003).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
-            <div className="w-[30%] flex items-center">
-              <button
-                onClick={handleToggleRental}
-                disabled={isTogglingRental}
-                className="w-full h-full px-3 py-2 rounded bg-blue-600 text-white border border-blue-400 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-95 font-semibold cursor-pointer flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isTogglingRental ? "..." : localIsRented ? "Stop Renting" : "Rent Out"}
-              </button>
-            </div>
+            <button
+              onClick={handleToggleRental}
+              disabled={isTogglingRental}
+              className={`w-[120px] px-5 py-2 rounded text-white border font-semibold cursor-pointer flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap relative transition-all active:scale-95 ${
+                localIsRented
+                  ? "bg-red-600 border-red-400 hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/30"
+                  : "bg-green-600 border-green-400 hover:bg-green-500 hover:shadow-lg hover:shadow-green-500/30"
+              }`}
+            >
+              <span className={isTogglingRental ? "blur-sm" : ""}>
+                {localIsRented ? "Stop Renting" : "Rent Out"}
+              </span>
+              {isTogglingRental && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+            </button>
           </div>
         )}
 
@@ -260,6 +279,23 @@ export default function RealEstatePage() {
       setPurchaseError("Connection error. Please try again.");
       await refreshPropertyData();
       setIsBuying(false);
+    }
+  };
+
+  const handlePropertyUpdated = async () => {
+    // Обновляем данные о городах после изменения статуса аренды
+    const citiesResponse = await fetch("/api/cities");
+    if (citiesResponse.ok) {
+      const citiesData = await citiesResponse.json();
+      setCities(citiesData);
+
+      // Обновляем выбранное свойство с актуальными данными
+      const updatedProperty = citiesData[selectedCityIndex]?.properties.find(
+        (p: Property) => p.id === selectedProperty?.id
+      );
+      if (updatedProperty) {
+        setSelectedProperty(updatedProperty);
+      }
     }
   };
 
@@ -443,6 +479,7 @@ export default function RealEstatePage() {
         currentUserId={currentUserId}
         isJustPurchased={isJustPurchased}
         purchaseError={purchaseError}
+        onPropertyUpdated={handlePropertyUpdated}
       />
     </div>
   );
