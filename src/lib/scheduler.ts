@@ -6,7 +6,7 @@ class FiveMinuteScheduler {
   private timeoutId: NodeJS.Timeout | null = null;
   private intervalId: NodeJS.Timeout | null = null;
   private started = false;
-  private readonly intervalMs = 5 * 60 * 1000; // 5 minutes
+  private readonly intervalMs = 1 * 60 * 1000; // 1 minute
   private tasks: Map<string, Task> = new Map();
 
   constructor() {
@@ -34,7 +34,7 @@ class FiveMinuteScheduler {
     }, delay);
 
     console.log(
-      `[Scheduler] ✓ Started. First run in ${Math.round(delay / 1000)}s, then every 5 minutes.`
+      `[Scheduler] ✓ Started. First run in ${Math.round(delay / 1000)}s, then every 1 minute.`
     );
   }
 

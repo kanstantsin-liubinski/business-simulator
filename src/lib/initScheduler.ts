@@ -19,7 +19,7 @@ export function initializeScheduler() {
     console.log("[Scheduler] ✓ Test task executed - scheduler is working!");
   });
 
-  // Add default task: log current time every 5 minutes
+  // Add default task: log current time every 1 minute
   scheduler.addTask("log-time", async () => {
     const now = new Date();
     const timeString = now.toLocaleString("ru-RU");
