@@ -91,6 +91,24 @@ const PropertyModal = ({ property, onClose, userBalance, onBuy, isBuying, curren
           </div>
         )}
 
+        {isOwnedByCurrentUser && !isJustPurchased && (
+          <div className="bg-slate-900/50 rounded-lg p-4 mb-4 border border-blue-500/30 flex">
+            <div className="flex-1">
+              <p className="text-gray-400 text-sm">Daily rental income</p>
+              <p className="text-lg font-bold text-blue-300">
+                ${(property.price * 0.0003).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="w-[30%] flex items-center">
+              <button
+                className="w-full h-full px-3 py-2 rounded bg-blue-600 text-white border border-blue-400 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-95 font-semibold cursor-pointer flex items-center justify-center text-sm"
+              >
+                Rent Out
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-3">
           {!isOwned && (
             <button
