@@ -1,3 +1,5 @@
+import { SCHEDULER_INTERVAL_MS } from "./scheduler-config";
+
 type Task = () => void | Promise<void>;
 
 console.log("[scheduler.ts] File loaded - starting module initialization");
@@ -6,7 +8,7 @@ class FiveMinuteScheduler {
   private timeoutId: NodeJS.Timeout | null = null;
   private intervalId: NodeJS.Timeout | null = null;
   private started = false;
-  private readonly intervalMs = 1 * 60 * 1000; // 1 minute
+  private readonly intervalMs = SCHEDULER_INTERVAL_MS;
   private tasks: Map<string, Task> = new Map();
 
   constructor() {

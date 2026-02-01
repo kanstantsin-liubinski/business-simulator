@@ -1,3 +1,5 @@
+import { SCHEDULER_INTERVAL_MS } from "lib/scheduler-config";
+
 type ClientTask = () => void | Promise<void>;
 
 console.log("[client-scheduler.ts] File loaded - starting module initialization");
@@ -6,7 +8,7 @@ class ClientScheduler {
   private timeoutId: NodeJS.Timeout | null = null;
   private intervalId: NodeJS.Timeout | null = null;
   private started = false;
-  private readonly intervalMs = 1 * 60 * 1000; // 1 minute
+  private readonly intervalMs = SCHEDULER_INTERVAL_MS;
   private tasks: Map<string, ClientTask> = new Map();
 
   constructor() {
