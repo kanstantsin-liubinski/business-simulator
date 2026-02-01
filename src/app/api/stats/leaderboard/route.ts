@@ -15,6 +15,7 @@ export async function GET() {
         _count: {
           select: {
             ownedProperties: true,
+            ownedCars: true,
           },
         },
       },
@@ -25,6 +26,7 @@ export async function GET() {
       email: user.email,
       balance: user.balance,
       propertiesCount: user._count.ownedProperties,
+      carsCount: user._count.ownedCars,
     }));
 
     return NextResponse.json(formattedUsers);

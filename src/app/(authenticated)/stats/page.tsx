@@ -14,6 +14,7 @@ interface LeaderboardUser {
   email: string;
   balance: number;
   propertiesCount: number;
+  carsCount: number;
 }
 
 export default function StatsPage() {
@@ -101,6 +102,7 @@ export default function StatsPage() {
                   <th className="text-left py-3 px-4 text-gray-300 font-semibold">Email</th>
                   <th className="text-right py-3 px-4 text-gray-300 font-semibold">Баланс</th>
                   <th className="text-right py-3 px-4 text-gray-300 font-semibold">Недвижимость</th>
+                  <th className="text-right py-3 px-4 text-gray-300 font-semibold">Автомобили</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,6 +132,9 @@ export default function StatsPage() {
                     </td>
                     <td className="py-3 px-4 text-right text-blue-400">
                       {user.propertiesCount}
+                    </td>
+                    <td className="py-3 px-4 text-right text-yellow-400">
+                      {user.carsCount}
                     </td>
                   </tr>
                 ))}
