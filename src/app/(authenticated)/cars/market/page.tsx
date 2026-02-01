@@ -107,9 +107,11 @@ const cars: Car[] = [
 ];
 
 export default function CarMarketPage() {
-  const { money, subtractMoney } = useGameStore();
+  const { money, subtractMoney, setUserBalance } = useGameStore();
   const [selectedCar, setSelectedCar] = useState<Car | null>(cars[0]);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const getConditionColor = (condition: number) => {
     if (condition >= 95) return "text-green-400";
@@ -127,12 +129,53 @@ export default function CarMarketPage() {
 
   const canBuy = money >= (selectedCar?.price || 0);
 
-  const handleBuyCar = () => {
-    if (selectedCar && canBuy) {
-      subtractMoney(selectedCar.price);
-      alert(`Поздравляем! Вы купили ${selectedCar.name} за $${selectedCar.price.toLocaleString()}`);
-      setShowConfirm(false);
-      setSelectedCar(null);
+  const handleBuyCar = async () => {
+    if (!selectedCar || !canBuy) return;
+
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch('/api/buy-car', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carId: selectedCar.id,
+          carPrice: selectedCar.price,
+          carName: selectedCar.name,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage({
+          type: 'error',
+          text: data.error || 'Ошибка при покупке автомобиля',
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Update balance in store
+      setUserBalance(data.newBalance);
+      
+      setMessage({
+        type: 'success',
+        text: data.message,
+      });
+
+      // Close modal and reset after 2 seconds
+      setTimeout(() => {
+        setShowConfirm(false);
+        setMessage(null);
+      }, 2000);
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: 'Ошибка при подключении к серверу',
+      });
+      setIsLoading(false);
     }
   };
 
@@ -291,45 +334,62 @@ export default function CarMarketPage() {
         <>
           <div
             className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setShowConfirm(false)}
+            onClick={() => !isLoading && setShowConfirm(false)}
           ></div>
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-slate-700 to-slate-800 border border-cyan-500/50 rounded-lg p-8 max-w-md w-full z-50 shadow-2xl shadow-cyan-500/30">
             <h2 className="text-3xl font-bold text-cyan-200 mb-6">
               Подтверждение покупки
             </h2>
             
-            <div className="mb-6 space-y-3 bg-slate-900/50 rounded-lg p-4 border border-slate-600/30">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Автомобиль:</span>
-                <span className="text-white font-semibold">{selectedCar.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Год:</span>
-                <span className="text-white">{selectedCar.year}</span>
-              </div>
-              <div className="flex justify-between text-lg border-t border-slate-600 pt-3">
-                <span className="text-gray-400">Цена:</span>
-                <span className="text-green-400 font-bold">
-                  ${selectedCar.price.toLocaleString()}
-                </span>
-              </div>
-            </div>
+            {!message ? (
+              <>
+                <div className="mb-6 space-y-3 bg-slate-900/50 rounded-lg p-4 border border-slate-600/30">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Автомобиль:</span>
+                    <span className="text-white font-semibold">{selectedCar.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Год:</span>
+                    <span className="text-white">{selectedCar.year}</span>
+                  </div>
+                  <div className="flex justify-between text-lg border-t border-slate-600 pt-3">
+                    <span className="text-gray-400">Цена:</span>
+                    <span className="text-green-400 font-bold">
+                      ${selectedCar.price.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
 
-            <div className="flex gap-4">
-              <button
-                onClick={handleBuyCar}
-                disabled={!canBuy}
-                className="flex-1 px-6 py-3 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold rounded-lg border border-green-400/50 hover:border-green-300 disabled:border-gray-500 shadow-lg shadow-green-500/20 disabled:shadow-none transition-colors duration-200 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
-              >
-                {canBuy ? "Подтвердить" : "Недостаточно средств"}
-              </button>
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="flex-1 px-6 py-3 bg-slate-700 text-white border border-slate-500 hover:border-slate-400 hover:bg-slate-600 rounded-lg font-semibold transition-colors duration-200 active:scale-95 cursor-pointer"
-              >
-                Отмена
-              </button>
-            </div>
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleBuyCar}
+                    disabled={!canBuy || isLoading}
+                    className="flex-1 px-6 py-3 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold rounded-lg border border-green-400/50 hover:border-green-300 disabled:border-gray-500 shadow-lg shadow-green-500/20 disabled:shadow-none transition-colors duration-200 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? "Обработка..." : canBuy ? "Подтвердить" : "Недостаточно средств"}
+                  </button>
+                  <button
+                    onClick={() => setShowConfirm(false)}
+                    disabled={isLoading}
+                    className="flex-1 px-6 py-3 bg-slate-700 text-white border border-slate-500 hover:border-slate-400 hover:bg-slate-600 disabled:opacity-50 rounded-lg font-semibold transition-colors duration-200 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    Отмена
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className={`text-center py-8 px-4 rounded-lg border ${
+                message.type === 'success'
+                  ? 'bg-green-900/30 border-green-500/30'
+                  : 'bg-red-900/30 border-red-500/30'
+              }`}>
+                <p className={`text-lg font-semibold ${
+                  message.type === 'success' ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {message.text}
+                </p>
+              </div>
+            )}
           </div>
         </>
       )}
