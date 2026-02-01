@@ -17,6 +17,7 @@ export async function GET() {
       where: { email: session.user.email },
       include: {
         ownedProperties: true,
+        ownedCars: true,
       },
     });
 
@@ -27,9 +28,9 @@ export async function GET() {
       );
     }
 
-    // Count properties and cars (cars would be a separate model, for now using type filter)
+    // Count properties and cars
     const propertiesCount = user.ownedProperties.length;
-    const carsCount = 0; // TODO: Add cars model and count
+    const carsCount = user.ownedCars.length;
 
     return NextResponse.json({
       balance: user.balance,

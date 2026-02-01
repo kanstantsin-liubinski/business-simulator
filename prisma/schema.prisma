@@ -16,6 +16,7 @@ model User {
   balance         Int                  @default(100000)
   accounts        Account[]
   ownedProperties CitiesEstateObject[]
+  ownedCars       UserCar[]
   sessions        Session[]
 
   @@map("users")
@@ -149,6 +150,20 @@ model UsedCar {
 
   make      CarMake   @relation(fields: [makeId], references: [id], onDelete: Cascade)
   model     CarModel  @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  owners    UserCar[]
 
   @@map("used_cars")
+}
+
+model UserCar {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  carId     String    @map("car_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  car       UsedCar   @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, carId])
+  @@map("user_cars")
 }

@@ -51,8 +51,13 @@ export async function POST(request: Request) {
       },
     });
 
-    // TODO: Create a Car model in Prisma and save the car purchase
-    // For now, we'll just return success
+    // Create UserCar record to link the car to the user
+    await prisma.userCar.create({
+      data: {
+        userId: user.id,
+        carId: carId,
+      },
+    });
 
     return NextResponse.json({
       success: true,
