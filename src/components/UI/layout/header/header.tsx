@@ -96,11 +96,18 @@ export default function Header() {
         if (response.ok) {
           const citiesData = await response.json();
           
-          // Calculate total daily rental income from rented properties
+          // Get current user info to check property ownership
+          const userResponse = await fetch("/api/user");
+          if (!userResponse.ok) return;
+          
+          const userData = await userResponse.json();
+          const currentUserId = userData.id;
+          
+          // Calculate total daily rental income from rented properties owned by current user
           let totalDailyIncome = 0;
           citiesData.forEach((city: any) => {
             city.properties.forEach((property: any) => {
-              if (property.isRented) {
+              if (property.isRented && property.ownerId === currentUserId) {
                 totalDailyIncome += property.price * 0.0003; // 0.03% daily
               }
             });
@@ -125,6 +132,7 @@ export default function Header() {
     }
 
     setAuthState("unauthenticated", null);
+    useGameStore.getState().resetGameStore();
     router.push("/sign-in");
   };
 

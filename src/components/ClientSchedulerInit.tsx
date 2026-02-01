@@ -20,30 +20,31 @@ export function ClientSchedulerInit() {
       try {
         console.log("[ClientScheduler] Syncing user data...");
         
-        // Fetch user balance
+        // Fetch user balance and id
         const userResponse = await fetch("/api/user");
         if (userResponse.ok) {
           const userData = await userResponse.json();
           setMoney(userData.balance);
           console.log("[ClientScheduler] ✓ Balance synced:", userData.balance);
-        }
 
-        // Fetch and calculate rental income
-        const citiesResponse = await fetch("/api/cities");
-        if (citiesResponse.ok) {
-          const citiesData = await citiesResponse.json();
-          
-          let totalDailyIncome = 0;
-          citiesData.forEach((city: any) => {
-            city.properties.forEach((property: any) => {
-              if (property.isRented) {
-                totalDailyIncome += property.price * 0.0003; // 0.03% daily
-              }
+          // Fetch and calculate rental income
+          const citiesResponse = await fetch("/api/cities");
+          if (citiesResponse.ok) {
+            const citiesData = await citiesResponse.json();
+            
+            let totalDailyIncome = 0;
+            citiesData.forEach((city: any) => {
+              city.properties.forEach((property: any) => {
+                // Only count income from properties owned by current user
+                if (property.isRented && property.ownerId === userData.id) {
+                  totalDailyIncome += property.price * 0.0003; // 0.03% daily
+                }
+              });
             });
-          });
-          
-          setMonthlyIncome(Math.round(totalDailyIncome));
-          console.log("[ClientScheduler] ✓ Rental income synced:", Math.round(totalDailyIncome));
+            
+            setMonthlyIncome(Math.round(totalDailyIncome));
+            console.log("[ClientScheduler] ✓ Rental income synced:", Math.round(totalDailyIncome));
+          }
         }
       } catch (error) {
         console.error("[ClientScheduler] ✗ Error syncing data:", error);

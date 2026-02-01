@@ -11,6 +11,7 @@ interface GameState {
   addMonthlyIncome: (amount: number) => void;
   subtractMonthlyIncome: (amount: number) => void;
   setUserBalance: (amount: number) => void;
+  resetGameStore: () => void;
 }
 
 export const useGameStore = create<GameState>()(
@@ -28,6 +29,7 @@ export const useGameStore = create<GameState>()(
         set((state) => ({ monthlyIncome: state.monthlyIncome + amount })),
       subtractMonthlyIncome: (amount) =>
         set((state) => ({ monthlyIncome: Math.max(0, state.monthlyIncome - amount) })),
+      resetGameStore: () => set({ money: 0, monthlyIncome: 0 }),
     }),
     {
       name: "game-storage",
