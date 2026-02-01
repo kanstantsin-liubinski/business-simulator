@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "cities_estate_objects" ADD COLUMN     "is_rented" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "last_price_update" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "max_price" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "min_price" INTEGER NOT NULL DEFAULT 0;
