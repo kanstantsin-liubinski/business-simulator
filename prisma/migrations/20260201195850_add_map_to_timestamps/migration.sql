@@ -1,0 +1,22 @@
+/*
+  Warnings:
+
+  - You are about to drop the column `createdAt` on the `new_cars` table. All the data in the column will be lost.
+  - You are about to drop the column `updatedAt` on the `new_cars` table. All the data in the column will be lost.
+  - You are about to drop the column `createdAt` on the `used_cars` table. All the data in the column will be lost.
+  - You are about to drop the column `updatedAt` on the `used_cars` table. All the data in the column will be lost.
+  - Added the required column `updated_at` to the `new_cars` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `updated_at` to the `used_cars` table without a default value. This is not possible if the table is not empty.
+
+*/
+-- AlterTable
+ALTER TABLE "new_cars" DROP COLUMN "createdAt",
+DROP COLUMN "updatedAt",
+ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "updated_at" TIMESTAMP(3) NOT NULL;
+
+-- AlterTable
+ALTER TABLE "used_cars" DROP COLUMN "createdAt",
+DROP COLUMN "updatedAt",
+ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "updated_at" TIMESTAMP(3) NOT NULL;

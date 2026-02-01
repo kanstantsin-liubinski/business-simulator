@@ -1,117 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGameStore } from "store/game.store";
 
-interface Car {
-  id: number;
+interface CarMake {
+  id: string;
   name: string;
+  createdAt: string;
+}
+
+interface CarModel {
+  id: string;
+  name: string;
+  makeId: string;
+  createdAt: string;
+}
+
+interface Car {
+  id: string;
+  makeId: string;
+  modelId: string;
   year: number;
   mileage: number;
   condition: number;
   color: string;
   price: number;
+  available: boolean;
+  make: CarMake;
+  model: CarModel;
 }
 
-const cars: Car[] = [
-  {
-    id: 1,
-    name: "Toyota Camry",
-    year: 2020,
-    mileage: 35000,
-    condition: 92,
-    color: "Silver",
-    price: 18500,
-  },
-  {
-    id: 2,
-    name: "BMW 3 Series",
-    year: 2019,
-    mileage: 48000,
-    condition: 88,
-    color: "Black",
-    price: 28900,
-  },
-  {
-    id: 3,
-    name: "Honda Civic",
-    year: 2021,
-    mileage: 22000,
-    condition: 95,
-    color: "Blue",
-    price: 16200,
-  },
-  {
-    id: 4,
-    name: "Mercedes-Benz C-Class",
-    year: 2018,
-    mileage: 62000,
-    condition: 82,
-    color: "White",
-    price: 32000,
-  },
-  {
-    id: 5,
-    name: "Ford Mustang",
-    year: 2020,
-    mileage: 28000,
-    condition: 90,
-    color: "Red",
-    price: 35500,
-  },
-  {
-    id: 6,
-    name: "Tesla Model 3",
-    year: 2022,
-    mileage: 15000,
-    condition: 98,
-    color: "Pearl White",
-    price: 42000,
-  },
-  {
-    id: 7,
-    name: "Audi A4",
-    year: 2019,
-    mileage: 41000,
-    condition: 86,
-    color: "Gray",
-    price: 26800,
-  },
-  {
-    id: 8,
-    name: "Nissan Altima",
-    year: 2021,
-    mileage: 19000,
-    condition: 94,
-    color: "Platinum",
-    price: 17500,
-  },
-  {
-    id: 9,
-    name: "Porsche 911",
-    year: 2020,
-    mileage: 12000,
-    condition: 96,
-    color: "Yellow",
-    price: 89000,
-  },
-  {
-    id: 10,
-    name: "Chevrolet Corvette",
-    year: 2021,
-    mileage: 8000,
-    condition: 97,
-    color: "Orange",
-    price: 65000,
-  },
-];
-
 export default function CarMarketPage() {
-  const { money, subtractMoney, setUserBalance } = useGameStore();
-  const [selectedCar, setSelectedCar] = useState<Car | null>(cars[0]);
+  const { money, setUserBalance } = useGameStore();
+  const [cars, setCars] = useState<Car[]>([]);
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCars, setIsLoadingCars] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Fetch cars from API
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const response = await fetch('/api/used-cars');
+        const data = await response.json();
+        
+        // Ensure data is always an array
+        if (Array.isArray(data)) {
+          setCars(data);
+          if (data.length > 0) {
+            setSelectedCar(data[0]);
+          }
+        } else {
+          console.error('API returned non-array data:', data);
+          setCars([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch cars:', error);
+        setCars([]);
+      } finally {
+        setIsLoadingCars(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
+
+  const getCarName = (car: Car) => {
+    return `${car.make.name} ${car.model.name}`;
+  };
 
   const getConditionColor = (condition: number) => {
     if (condition >= 95) return "text-green-400";
@@ -142,7 +100,7 @@ export default function CarMarketPage() {
         body: JSON.stringify({
           carId: selectedCar.id,
           carPrice: selectedCar.price,
-          carName: selectedCar.name,
+          carName: getCarName(selectedCar),
         }),
       });
 
@@ -178,6 +136,14 @@ export default function CarMarketPage() {
       setIsLoading(false);
     }
   };
+
+  if (isLoadingCars) {
+    return (
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
+        <p className="text-cyan-300 text-xl">Загрузка автомобилей...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col items-center justify-center px-8 py-20">
@@ -219,7 +185,7 @@ export default function CarMarketPage() {
                         selectedCar?.id === car.id ? "bg-cyan-500/30" : ""
                       }`}
                     >
-                      <td className="px-2 py-2 text-white truncate max-w-[140px] font-medium">{car.name}</td>
+                      <td className="px-2 py-2 text-white truncate max-w-[140px] font-medium">{getCarName(car)}</td>
                       <td className="px-2 py-2 text-gray-300 whitespace-nowrap">{car.year}</td>
                       <td className="px-2 py-2 text-green-400 font-semibold whitespace-nowrap text-right">${car.price.toLocaleString()}</td>
                     </tr>
@@ -236,7 +202,7 @@ export default function CarMarketPage() {
                 {/* Main Car Card */}
                 <div className="flex flex-col bg-gradient-to-br from-slate-700 to-slate-800 border border-cyan-500/50 rounded-lg p-6 flex-shrink-0 h-full">
                   <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-3xl font-bold text-cyan-200">{selectedCar.name}</h3>
+                    <h3 className="text-3xl font-bold text-cyan-200">{getCarName(selectedCar)}</h3>
                     <span className="text-5xl">🚗</span>
                   </div>
 
@@ -346,7 +312,7 @@ export default function CarMarketPage() {
                 <div className="mb-6 space-y-3 bg-slate-900/50 rounded-lg p-4 border border-slate-600/30">
                   <div className="flex justify-between">
                     <span className="text-gray-400">Автомобиль:</span>
-                    <span className="text-white font-semibold">{selectedCar.name}</span>
+                    <span className="text-white font-semibold">{getCarName(selectedCar)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Год:</span>

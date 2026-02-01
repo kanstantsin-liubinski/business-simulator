@@ -91,3 +91,64 @@ model CitiesEstateObject {
 
   @@map("cities_estate_objects")
 }
+
+model CarMake {
+  id       String     @id
+  name     String     @unique
+  models   CarModel[]
+  newCars  NewCar[]
+  usedCars UsedCar[]
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("car_makes")
+}
+
+model CarModel {
+  id       String     @id
+  name     String
+  makeId   String     @map("make_id")
+  make     CarMake    @relation(fields: [makeId], references: [id], onDelete: Cascade)
+  newCars  NewCar[]
+  usedCars UsedCar[]
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@unique([makeId, name])
+  @@map("car_models")
+}
+
+model NewCar {
+  id        String    @id @default(uuid())
+  makeId    String    @map("make_id")
+  modelId   String    @map("model_id")
+  year      Int
+  condition Int       @default(100)
+  color     String
+  price     Int
+  available Boolean   @default(true)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  make      CarMake   @relation(fields: [makeId], references: [id], onDelete: Cascade)
+  model     CarModel  @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@map("new_cars")
+}
+
+model UsedCar {
+  id        String    @id @default(uuid())
+  makeId    String    @map("make_id")
+  modelId   String    @map("model_id")
+  year      Int
+  mileage   Int
+  condition Int
+  color     String
+  price     Int
+  available Boolean   @default(true)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  make      CarMake   @relation(fields: [makeId], references: [id], onDelete: Cascade)
+  model     CarModel  @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@map("used_cars")
+}
