@@ -40,40 +40,25 @@ const GameCard = ({ title, href, description, icon }: GameCardProps) => {
 export default function CarsPage() {
   const cards = [
     {
-      title: "Garage",
+      title: "Гараж",
       href: "/cars/garage",
-      description: "Your personal garage. Manage and customize your vehicles.",
+      description: "Ваш личный гараж. Управляйте и кастомизируйте ваши автомобили.",
       icon: "🏠",
+      featured: true,
     },
     {
-      title: "Car Market",
-      href: "/cars/market",
-      description: "Browse and buy cars from the marketplace.",
+      title: "Автосалон",
+      href: "/cars/dealership",
+      description: "Покупайте новые автомобили",
       icon: "🏪",
+      featured: false,
     },
     {
-      title: "Detailing",
-      href: "/cars/detailing",
-      description: "Professional car detailing services.",
-      icon: "✨",
-    },
-    {
-      title: "Service Station",
-      href: "/cars/service",
-      description: "Vehicle maintenance and repair services.",
-      icon: "🔧",
-    },
-    {
-      title: "Car Wash",
-      href: "/cars/wash",
-      description: "Quick and professional car washing.",
-      icon: "💦",
-    },
-    {
-      title: "Tuning Shop",
-      href: "/cars/tuning",
-      description: "Upgrade and tune your vehicle for better performance.",
-      icon: "⚡",
+      title: "Авторынок",
+      href: "/cars/market",
+      description: "Покупайте и продавайте б/у автомобили.",
+      icon: "💰",
+      featured: false,
     },
   ];
 
@@ -90,16 +75,30 @@ export default function CarsPage() {
         {/* Header */}
         <div className="text-center">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent mb-3">
-            CARS
+            АВТОМОБИЛИ
           </h1>
-          <p className="text-gray-300 text-lg">Choose a service and start playing</p>
+          <p className="text-gray-300 text-lg">Выберите услугу и начните играть</p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
-          {cards.map((card) => (
-            <GameCard key={card.href} {...card} />
-          ))}
+        {/* Cards Grid - Equal size in row with Garage in center */}
+        <div className="grid grid-cols-3 gap-8 w-full max-w-6xl">
+          {/* Автосалон - Left */}
+          <GameCard 
+            key={cards[1].href} 
+            {...cards[1]}
+          />
+          
+          {/* Гараж - Center */}
+          <GameCard 
+            key={cards[0].href} 
+            {...cards[0]}
+          />
+          
+          {/* Авторынок - Right */}
+          <GameCard 
+            key={cards[2].href} 
+            {...cards[2]}
+          />
         </div>
       </div>
     </div>

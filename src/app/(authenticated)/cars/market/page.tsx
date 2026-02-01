@@ -178,7 +178,7 @@ export default function CarMarketPage() {
                     >
                       <td className="px-2 py-2 text-white truncate max-w-[140px] font-medium">{car.name}</td>
                       <td className="px-2 py-2 text-gray-300 whitespace-nowrap">{car.year}</td>
-                      <td className="px-2 py-2 text-green-400 font-semibold whitespace-nowrap">${car.price.toLocaleString()}</td>
+                      <td className="px-2 py-2 text-green-400 font-semibold whitespace-nowrap text-right">${car.price.toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
