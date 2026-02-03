@@ -201,7 +201,7 @@ export default function Header() {
         <div className="flex-1 flex flex-end items-center gap-x-2">
           <div className="ml-auto h-14 bg-gradient-to-br from-slate-700 via-slate-750 to-slate-800 border border-cyan-500/40 rounded-lg shadow-lg shadow-cyan-500/20 hover:border-cyan-400/60 hover:shadow-cyan-500/30 transition-all duration-200 flex items-center gap-4 px-5">
             {/* Balance section */}
-            <div className="flex items-center gap-2.5 border-r border-slate-600/50 pr-4">
+            <div className="flex items-center gap-2.5 border-r border-slate-600/50 pr-4 h-11">
               <span className="text-lg">💰</span>
               <div className="flex flex-col gap-0">
                 <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest">
