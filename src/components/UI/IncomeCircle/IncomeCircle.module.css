@@ -1,0 +1,18 @@
+.svg {
+  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.3));
+  transition: filter 0.2s ease;
+}
+
+.progressCircle {
+  /* Без transition для плавной анимации */
+}
+
+.icon {
+  font-size: 18px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.svg:hover {
+  filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.5));
+}

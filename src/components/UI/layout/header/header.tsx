@@ -8,6 +8,7 @@ import { useAuthStore } from "store/auth.store";
 import { useGameStore } from "store/game.store";
 import GameButton from "components/UI/GameButton/GameButton";
 import GameLink from "components/UI/GameLink/GameLink";
+import IncomeCircle from "components/UI/IncomeCircle/IncomeCircle";
 
 const BirdLogo = () => (
   <svg
@@ -150,30 +151,32 @@ export default function Header() {
         </Link>
 
         <div className="flex-1 flex flex-end items-center gap-x-2">
-          <div className="ml-auto px-4 py-2 bg-gradient-to-br from-slate-700 to-slate-800 border border-cyan-500/60 rounded-lg shadow-lg shadow-cyan-500/20 hover:border-cyan-400 hover:shadow-cyan-500/30 transition-all duration-200">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">💰</span>
-              <div className="flex flex-col">
-                <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+          <div className="ml-auto h-14 bg-gradient-to-br from-slate-700 via-slate-750 to-slate-800 border border-cyan-500/40 rounded-lg shadow-lg shadow-cyan-500/20 hover:border-cyan-400/60 hover:shadow-cyan-500/30 transition-all duration-200 flex items-center gap-4 px-5">
+            {/* Balance section */}
+            <div className="flex items-center gap-2.5 border-r border-slate-600/50 pr-4">
+              <span className="text-lg">💰</span>
+              <div className="flex flex-col gap-0">
+                <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest">
                   Balance
                 </span>
-                <span className="text-base font-bold text-cyan-200">
+                <span className="text-sm font-bold text-cyan-300 leading-tight">
                   ${money.toLocaleString()}
                 </span>
               </div>
             </div>
-          </div>
 
-          <div className="px-4 py-2 bg-gradient-to-br from-slate-700 to-slate-800 border border-blue-500/60 rounded-lg shadow-lg shadow-blue-500/20 hover:border-blue-400 hover:shadow-blue-500/30 transition-all duration-200">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">📈</span>
-              <div className="flex flex-col">
-                <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+            {/* Income section */}
+            <div className="flex items-center gap-2.5">
+              <div className="flex flex-col gap-0">
+                <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest">
                   Income
                 </span>
-                <span className="text-base font-bold text-blue-200">
+                <span className="text-sm font-bold text-blue-300 leading-tight">
                   ${monthlyIncome.toLocaleString()}/day
                 </span>
+              </div>
+              <div className="pl-2 border-l border-slate-600/50">
+                <IncomeCircle monthlyIncome={monthlyIncome} />
               </div>
             </div>
           </div>
