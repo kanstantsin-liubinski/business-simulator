@@ -3,12 +3,13 @@
 import { signOutFunc } from "actions/sign-out";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "store/auth.store";
 import { useGameStore } from "store/game.store";
 import GameButton from "components/UI/GameButton/GameButton";
 import GameLink from "components/UI/GameLink/GameLink";
 import IncomeCircle from "components/UI/IncomeCircle/IncomeCircle";
+import { SCHEDULER_INTERVAL_MS } from "lib/scheduler-config";
 
 const BirdLogo = () => (
   <svg
@@ -72,8 +73,10 @@ export default function Header() {
   const router = useRouter();
   const { setAuthState } = useAuthStore();
   const { money, monthlyIncome, setMoney, setMonthlyIncome } = useGameStore();
+  const lastUpdateTimeRef = useRef<number>(0);
 
   useEffect(() => {
+    // Загружаем баланс при монтировании
     const fetchUserBalance = async () => {
       try {
         console.log("Header: Fetching user balance from /api/user...");
@@ -83,6 +86,7 @@ export default function Header() {
           const data = await response.json();
           console.log("Header: User data received:", data);
           setMoney(data.balance);
+          lastUpdateTimeRef.current = Date.now();
         } else {
           console.error("Header: Failed to fetch user data, status:", response.status);
         }
@@ -124,6 +128,50 @@ export default function Header() {
     fetchUserBalance();
     fetchRentalIncome();
   }, [setMoney, setMonthlyIncome]);
+
+  // Синхронизируем обновление баланса с циклом SCHEDULER_INTERVAL_MS
+  // Обновляем баланс в конце каждого цикла, когда бэк распределяет income
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    let animationFrameId: number;
+
+    const syncBalanceUpdate = () => {
+      const now = Date.now();
+      const cycleDuration = SCHEDULER_INTERVAL_MS;
+      const timeInCycle = now % cycleDuration;
+      
+      // Вычисляем время до конца цикла (с небольшой задержкой 500ms чтобы бэк точно обновил)
+      const timeUntilCycleEnd = cycleDuration - timeInCycle + 500;
+
+      timeoutId = setTimeout(() => {
+        // Обновляем баланс в конце цикла
+        const fetchUpdatedBalance = async () => {
+          try {
+            const response = await fetch("/api/user");
+            if (response.ok) {
+              const data = await response.json();
+              setMoney(data.balance);
+              lastUpdateTimeRef.current = Date.now();
+              console.log("Header: Balance synced at cycle end:", data.balance);
+            }
+          } catch (err) {
+            console.error("Header: Error syncing balance:", err);
+          }
+        };
+
+        fetchUpdatedBalance();
+        
+        // Рекурсивно вызываем для следующего цикла
+        syncBalanceUpdate();
+      }, timeUntilCycleEnd);
+    };
+
+    syncBalanceUpdate();
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [setMoney]);
 
   const handleSignOut = async () => {
     try {
